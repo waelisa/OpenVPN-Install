@@ -49,67 +49,67 @@ DNS_PROVIDERS=(
     # System & Local
     ["system"]="System default|System resolvers from /etc/resolv.conf"
     ["unbound"]="Unbound|Self-hosted recursive resolver"
-    
+
     # Cloudflare
     ["cloudflare"]="Cloudflare Standard|1.1.1.1/1.0.0.1 - Privacy focused"
     ["cloudflare-malware"]="Cloudflare Malware|1.1.1.2/1.0.0.2 - Blocks malware"
     ["cloudflare-family"]="Cloudflare Family|1.1.1.3/1.0.0.3 - Blocks malware + adult"
-    
+
     # Quad9
     ["quad9"]="Quad9 Standard|9.9.9.9/149.112.112.112 - Blocks malicious domains"
     ["quad9-uncensored"]="Quad9 Unfiltered|9.9.9.10/149.112.112.10 - No filtering"
     ["quad9-ecs"]="Quad9 with ECS|9.9.9.11/149.112.112.11 - With EDNS Client Subnet"
-    
+
     # Google
     ["google"]="Google Standard|8.8.8.8/8.8.4.4 - Fast, global anycast"
     ["google-ipv6"]="Google IPv6|2001:4860:4860::8888/2001:4860:4860::8844"
-    
+
     # OpenDNS
     ["opendns"]="OpenDNS Standard|208.67.222.222/208.67.220.220 - Cisco Umbrella"
     ["opendns-familyshield"]="OpenDNS FamilyShield|208.67.222.123/208.67.220.123 - Blocks adult content"
-    
+
     # AdGuard
     ["adguard"]="AdGuard Standard|94.140.14.14/94.140.15.15 - Blocks ads & trackers"
     ["adguard-family"]="AdGuard Family|94.140.14.15/94.140.15.16 - Family protection"
-    
+
     # NextDNS
     ["nextdns"]="NextDNS|45.90.28.0/45.90.30.0 - Customizable filtering"
-    
+
     # Control D
     ["controld"]="Control D|76.76.2.0/76.76.10.0 - Free customizable DNS"
     ["controld-family"]="Control D Family|76.76.2.1/76.76.10.1 - Blocks malware + adult"
-    
+
     # CleanBrowsing
     ["cleanbrowsing"]="CleanBrowsing Family|185.228.168.168/185.228.169.168 - Family filter"
     ["cleanbrowsing-adult"]="CleanBrowsing Adult|185.228.168.10/185.228.169.11 - Adult filter"
     ["cleanbrowsing-security"]="CleanBrowsing Security|185.228.168.9/185.228.169.9 - Malware blocking"
-    
+
     # European Privacy
     ["fdn"]="FDN (France)|80.67.169.40/80.67.169.12 - French non-profit"
     ["dnswatch"]="DNS.WATCH (Germany)|84.200.69.80/84.200.70.40 - No logging"
     ["dns0"]="dns0.eu|193.110.81.0/185.253.5.0 - European privacy"
     ["dns0-family"]="dns0.eu Family|193.110.81.9/185.253.5.9 - Family protection"
-    
+
     # Yandex
     ["yandex"]="Yandex Basic|77.88.8.8/77.88.8.1 - Russia"
     ["yandex-safe"]="Yandex Safe|77.88.8.88/77.88.8.2 - Blocks malware/phishing"
     ["yandex-family"]="Yandex Family|77.88.8.7/77.88.8.3 - Blocks adult content"
-    
+
     # Security Focused
     ["comodo"]="Comodo Secure DNS|8.26.56.26/8.20.247.20 - Security focused"
     ["alternate"]="Alternate DNS|76.76.19.19/76.223.122.150 - No logging"
     ["norton"]="Norton ConnectSafe|199.85.126.10/199.85.127.10 - Security (deprecated)"
-    
+
     # Neustar
     ["neustar"]="Neustar Standard|156.154.70.1/156.154.71.1 - Ultra-low latency"
     ["neustar-family"]="Neustar Family|156.154.70.2/156.154.71.2 - Blocks adult content"
     ["neustar-business"]="Neustar Business|156.154.70.3/156.154.71.3 - Blocks non-business"
-    
+
     # Legacy/Other
     ["dyn"]="Dyn DNS|216.146.35.35/216.146.36.36 - Legacy Dyn"
     ["verisign"]="Verisign|64.6.64.6/64.6.65.6 - DNSSEC enabled"
     ["safe-surfer"]="Safe Surfer|104.236.10.9/104.131.144.4 - Open Source filter"
-    
+
     # Custom
     ["custom"]="Custom|Manually enter DNS servers"
 )
@@ -162,10 +162,10 @@ print_status() {
     local label="$1"
     local value="$2"
     local status_color="$C_GREEN"
-    
+
     [[ "$value" == *"Not"* || "$value" == *"no"* || "$value" == *"disabled"* ]] && status_color="$C_RED"
     [[ "$value" == *"yes"* || "$value" == *"enabled"* ]] && status_color="$C_GREEN"
-    
+
     printf "  ${C_DIM}%-20s${C_RESET} : ${status_color}%s${C_RESET}\n" "$label" "$value"
 }
 
@@ -188,13 +188,13 @@ run_cmd() {
     shift
     print_debug "Running: $*"
     _log_to_file "[CMD] $*"
-    
+
     if [[ $VERBOSE -eq 1 ]]; then
         "$@" 2>&1 | tee -a "$LOG_FILE"
     else
         "$@" >>"$LOG_FILE" 2>&1
     fi
-    
+
     local ret=$?
     [[ $ret -eq 0 ]] && print_debug "$desc completed" || print_error "$desc failed"
     return $ret
@@ -209,66 +209,66 @@ run_cmd_fatal() {
 get_dns_servers() {
     local provider="$1"
     local ipv4_only="$2"
-    
+
     case "$provider" in
         # System & Local
         system|unbound|custom) echo "" ;;
-        
+
         # Cloudflare
         cloudflare) echo "1.1.1.1 1.0.0.1 2606:4700:4700::1111 2606:4700:4700::1001" ;;
         cloudflare-malware) echo "1.1.1.2 1.0.0.2 2606:4700:4700::1112 2606:4700:4700::1002" ;;
         cloudflare-family) echo "1.1.1.3 1.0.0.3 2606:4700:4700::1113 2606:4700:4700::1003" ;;
-        
+
         # Quad9
         quad9) echo "9.9.9.9 149.112.112.112 2620:fe::fe 2620:fe::9" ;;
         quad9-uncensored) echo "9.9.9.10 149.112.112.10 2620:fe::10 2620:fe::fe:10" ;;
         quad9-ecs) echo "9.9.9.11 149.112.112.11 2620:fe::11 2620:fe::fe:11" ;;
-        
+
         # Google
         google) echo "8.8.8.8 8.8.4.4 2001:4860:4860::8888 2001:4860:4860::8844" ;;
         google-ipv6) echo "2001:4860:4860::8888 2001:4860:4860::8844" ;;
-        
+
         # OpenDNS
         opendns) echo "208.67.222.222 208.67.220.220 2620:119:35::35 2620:119:53::53" ;;
         opendns-familyshield) echo "208.67.222.123 208.67.220.123 2620:119:35::123 2620:119:53::123" ;;
-        
+
         # AdGuard
         adguard) echo "94.140.14.14 94.140.15.15 2a10:50c0::ad1:ff 2a10:50c0::ad2:ff" ;;
         adguard-family) echo "94.140.14.15 94.140.15.16 2a10:50c0::bad1:ff 2a10:50c0::bad2:ff" ;;
-        
+
         # NextDNS
         nextdns) echo "45.90.28.0 45.90.30.0 2a07:a8c0:: 2a07:a8c1::" ;;
-        
+
         # Control D
         controld) echo "76.76.2.0 76.76.10.0 2606:1a40:: 2606:1a40:1::" ;;
         controld-family) echo "76.76.2.1 76.76.10.1 2606:1a40::1 2606:1a40:1::1" ;;
-        
+
         # CleanBrowsing
         cleanbrowsing) echo "185.228.168.168 185.228.169.168 2a0d:2a00:1:: 2a0d:2a00:2::" ;;
         cleanbrowsing-adult) echo "185.228.168.10 185.228.169.11 2a0d:2a00:1::2 2a0d:2a00:2::2" ;;
         cleanbrowsing-security) echo "185.228.168.9 185.228.169.9 2a0d:2a00:1::1 2a0d:2a00:2::1" ;;
-        
+
         # European
         fdn) echo "80.67.169.40 80.67.169.12 2001:910:800::40 2001:910:800::12" ;;
         dnswatch) echo "84.200.69.80 84.200.70.40 2001:1608:10:25::1c04:b12f 2001:1608:10:25::9249:d69b" ;;
         dns0) echo "193.110.81.0 185.253.5.0 2a0f:fc80:: 2a0f:fc81::" ;;
         dns0-family) echo "193.110.81.9 185.253.5.9 2a0f:fc80::9 2a0f:fc81::9" ;;
-        
+
         # Yandex
         yandex) echo "77.88.8.8 77.88.8.1 2a02:6b8::feed:0ff 2a02:6b8:0:1::feed:0ff" ;;
         yandex-safe) echo "77.88.8.88 77.88.8.2 2a02:6b8::feed:bad 2a02:6b8:0:1::feed:bad" ;;
         yandex-family) echo "77.88.8.7 77.88.8.3 2a02:6b8::feed:a11 2a02:6b8:0:1::feed:a11" ;;
-        
+
         # Security
         comodo) echo "8.26.56.26 8.20.247.20" ;;
         alternate) echo "76.76.19.19 76.223.122.150" ;;
         norton) echo "199.85.126.10 199.85.127.10" ;;
-        
+
         # Neustar
         neustar) echo "156.154.70.1 156.154.71.1 2610:a1:1018::1 2610:a1:1019::1" ;;
         neustar-family) echo "156.154.70.2 156.154.71.2 2610:a1:1018::2 2610:a1:1019::2" ;;
         neustar-business) echo "156.154.70.3 156.154.71.3 2610:a1:1018::3 2610:a1:1019::3" ;;
-        
+
         # Legacy
         dyn) echo "216.146.35.35 216.146.36.36" ;;
         verisign) echo "64.6.64.6 64.6.65.6" ;;
@@ -377,7 +377,7 @@ prepare_network_config() {
 select_dns_provider() {
     print_section "DNS Provider Selection"
     echo ""
-    
+
     local categories=(
         "System & Local"
         "Cloudflare"
@@ -394,7 +394,7 @@ select_dns_provider() {
         "Legacy/Other"
         "Custom"
     )
-    
+
     local providers=(
         "system,unbound"
         "cloudflare,cloudflare-malware,cloudflare-family"
@@ -411,14 +411,14 @@ select_dns_provider() {
         "dyn,verisign,safe-surfer"
         "custom"
     )
-    
+
     local current=0
     local selected=""
-    
+
     while [[ -z "$selected" ]]; do
         echo -e "${C_BOLD}${C_YELLOW}Category: ${categories[$current]}${C_RESET}"
         echo -e "${C_DIM}────────────────────────${C_RESET}"
-        
+
         IFS=',' read -ra provs <<< "${providers[$current]}"
         local i=1
         for p in "${provs[@]}"; do
@@ -428,13 +428,13 @@ select_dns_provider() {
                 ((i++))
             fi
         done
-        
+
         echo ""
         printf "  ${C_YELLOW}n)${C_RESET} Next  ${C_YELLOW}p)${C_RESET} Prev  ${C_YELLOW}q)${C_RESET} Quit"
         echo ""
-        
+
         read -rp "$(print_prompt "Select [1-$(($i-1)) or n/p/q]: ")" choice
-        
+
         case "$choice" in
             [0-9]*)
                 if [[ $choice -ge 1 && $choice -le $(($i-1)) ]]; then
@@ -450,7 +450,7 @@ select_dns_provider() {
         esac
         echo ""
     done
-    
+
     DNS="$selected"
     print_success "Selected: ${DNS_PROVIDERS[$DNS]%%|*}"
 }
@@ -470,7 +470,7 @@ set_installation_defaults() {
     DNS="${DNS:-cloudflare}"
     MULTI_CLIENT="${MULTI_CLIENT:-n}"
     MTU="${MTU:-1500}"
-    
+
     # Encryption defaults
     CIPHER="${CIPHER:-AES-128-GCM}"
     CERT_TYPE="${CERT_TYPE:-ecdsa}"
@@ -482,7 +482,7 @@ set_installation_defaults() {
     HMAC_ALG="${HMAC_ALG:-SHA256}"
     TLS_SIG="${TLS_SIG:-crypt-v2}"
     AUTH_MODE="${AUTH_MODE:-pki}"
-    
+
     # Derive CC_CIPHER if not set
     if [[ -z $CC_CIPHER ]]; then
         if [[ $CERT_TYPE == "ecdsa" ]]; then
@@ -491,7 +491,7 @@ set_installation_defaults() {
             CC_CIPHER="TLS-ECDHE-RSA-WITH-AES-128-GCM-SHA256"
         fi
     fi
-    
+
     # Client
     CLIENT="${CLIENT:-client}"
     PASS="${PASS:-1}"
@@ -513,13 +513,13 @@ validate_configuration() {
 installQuestions() {
     print_header "OpenVPN Installer"
     echo ""
-    
+
     IP_IPV4=$(ip -4 addr | sed -ne 's|^.* inet \([^/]*\)/.* scope global.*$|\1|p' | head -1)
     IP_IPV6=$(ip -6 addr | sed -ne 's|^.* inet6 \([^/]*\)/.* scope global.*$|\1|p' | head -1)
-    
+
     echo ""
     print_prompt "What IP version should clients use to connect?"
-    
+
     if [[ -n $IP_IPV4 ]]; then
         echo "  1) IPv4"
         [[ -n $IP_IPV6 ]] && echo "  2) IPv6"
@@ -528,38 +528,38 @@ installQuestions() {
         echo "  1) IPv6"
         DEFAULT=1
     fi
-    
+
     read -rp "$(print_prompt "Select [1]: ")" -e -i $DEFAULT ENDPOINT_TYPE_CHOICE
     ENDPOINT_TYPE=$([[ $ENDPOINT_TYPE_CHOICE == "2" ]] && echo "6" || echo "4")
     IP=$([[ $ENDPOINT_TYPE == "6" ]] && echo "$IP_IPV6" || echo "$IP_IPV4")
-    
+
     if [[ $ENDPOINT_TYPE == "4" && $IP =~ ^(10\.|172\.1[6-9]\.|172\.2[0-9]\.|172\.3[0-1]\.|192\.168) ]]; then
         echo ""
         print_warning "Server appears to be behind NAT"
         DEFAULT_ENDPOINT=$(resolvePublicIPv4)
         read -rp "Public IPv4/hostname: " -e -i "$DEFAULT_ENDPOINT" ENDPOINT
     fi
-    
+
     echo ""
     print_prompt "What IP versions should VPN clients use?"
     echo "  1) IPv4 only"
     echo "  2) IPv6 only"
     echo "  3) Dual-stack"
     read -rp "$(print_prompt "Select [1]: ")" -e -i 1 CLIENT_IP_CHOICE
-    
+
     case $CLIENT_IP_CHOICE in
         2) CLIENT_IPV4="n"; CLIENT_IPV6="y" ;;
         3) CLIENT_IPV4="y"; CLIENT_IPV6="y" ;;
         *) CLIENT_IPV4="y"; CLIENT_IPV6="n" ;;
     esac
-    
+
     if [[ $CLIENT_IPV4 == "y" ]]; then
         echo ""
         print_prompt "IPv4 VPN subnet:"
         echo "  1) Default: 10.8.0.0/24"
         echo "  2) Custom"
         read -rp "$(print_prompt "Select [1]: ")" -e -i 1 SUBNET_IPV4_CHOICE
-        
+
         if [[ $SUBNET_IPV4_CHOICE == "2" ]]; then
             until [[ $VPN_SUBNET_IPV4 =~ ^10\.[0-9]+\.[0-9]+\.0$ ]]; do
                 read -rp "Custom subnet (e.g., 10.9.0.0): " VPN_SUBNET_IPV4
@@ -570,14 +570,14 @@ installQuestions() {
     else
         VPN_SUBNET_IPV4="10.8.0.0"
     fi
-    
+
     if [[ $CLIENT_IPV6 == "y" ]]; then
         echo ""
         print_prompt "IPv6 VPN subnet:"
         echo "  1) Default: fd42:42:42:42::/112"
         echo "  2) Custom"
         read -rp "$(print_prompt "Select [1]: ")" -e -i 1 SUBNET_IPV6_CHOICE
-        
+
         if [[ $SUBNET_IPV6_CHOICE == "2" ]]; then
             until [[ $VPN_SUBNET_IPV6 =~ ^fd[0-9a-f:]+::$ ]]; do
                 read -rp "Custom subnet (e.g., fd12:3456:789a::): " VPN_SUBNET_IPV6
@@ -586,14 +586,14 @@ installQuestions() {
             VPN_SUBNET_IPV6="fd42:42:42:42::"
         fi
     fi
-    
+
     echo ""
     print_prompt "What port should OpenVPN listen on?"
     echo "  1) Default: 1194"
     echo "  2) Custom"
     echo "  3) Random [49152-65535]"
     read -rp "$(print_prompt "Select [1]: ")" -e -i 1 PORT_CHOICE
-    
+
     case $PORT_CHOICE in
         2)
             until validate_port "$PORT"; do
@@ -603,48 +603,48 @@ installQuestions() {
         3) PORT=$(shuf -i 49152-65535 -n1) ;;
         *) PORT="1194" ;;
     esac
-    
+
     echo ""
     print_prompt "What protocol should OpenVPN use?"
     echo "  1) UDP (recommended)"
     echo "  2) TCP"
     read -rp "$(print_prompt "Select [1]: ")" -e -i 1 PROTOCOL_CHOICE
     PROTOCOL=$([[ $PROTOCOL_CHOICE == "2" ]] && echo "tcp" || echo "udp")
-    
+
     echo ""
     select_dns_provider || log_fatal "DNS selection cancelled"
-    
+
     echo ""
     print_prompt "Allow multiple devices per client?"
     read -rp "$(print_prompt "Allow? [y/N]: ")" -e -i n MULTI_CLIENT
-    
+
     echo ""
     print_prompt "Customize tunnel MTU?"
     echo "  1) Default (1500)"
     echo "  2) Custom"
     read -rp "$(print_prompt "Select [1]: ")" -e -i 1 MTU_CHOICE
-    
+
     if [[ $MTU_CHOICE == "2" ]]; then
         until validate_mtu "$MTU"; do
             read -rp "MTU [576-65535]: " -e -i 1500 MTU
         done
     fi
-    
+
     echo ""
     print_prompt "Choose authentication mode:"
     echo "  1) PKI (Certificate Authority) - Traditional"
     echo "  2) Peer Fingerprint (OpenVPN 2.6+) - Simpler"
     read -rp "$(print_prompt "Select [1]: ")" -e -i 1 AUTH_MODE_CHOICE
     AUTH_MODE=$([[ $AUTH_MODE_CHOICE == "2" ]] && echo "fingerprint" || echo "pki")
-    
+
     # =========================================================================
     # Encryption Settings - Complete Customization
     # =========================================================================
-    
+
     echo ""
     print_prompt "Customize encryption settings?"
     read -rp "$(print_prompt "Customize? [y/N]: ")" -e -i n CUSTOMIZE_ENC
-    
+
     if [[ $CUSTOMIZE_ENC == "y" ]]; then
         # Cipher selection
         echo ""
@@ -655,7 +655,7 @@ installQuestions() {
         echo "  3) CHACHA20-POLY1305 (good for devices without AES-NI)"
         echo "  4) AES-128-CBC (legacy)"
         echo "  5) AES-256-CBC (legacy)"
-        
+
         read -rp "$(print_prompt "Select [1]: ")" -e -i 1 CIPHER_CHOICE
         case $CIPHER_CHOICE in
             2) CIPHER="AES-256-GCM" ;;
@@ -664,16 +664,16 @@ installQuestions() {
             5) CIPHER="AES-256-CBC" ;;
             *) CIPHER="AES-128-GCM" ;;
         esac
-        
+
         # Certificate type
         echo ""
         print_section "Certificate Type"
         print_prompt "Choose certificate key type:"
         echo "  1) ECDSA (recommended, smaller keys, faster)"
         echo "  2) RSA (traditional, wider compatibility)"
-        
+
         read -rp "$(print_prompt "Select [1]: ")" -e -i 1 CERT_TYPE_CHOICE
-        
+
         if [[ $CERT_TYPE_CHOICE == "2" ]]; then
             CERT_TYPE="rsa"
             echo ""
@@ -681,7 +681,7 @@ installQuestions() {
             echo "  1) 2048 bits (default, good security)"
             echo "  2) 3072 bits (stronger)"
             echo "  3) 4096 bits (strongest, slower)"
-            
+
             read -rp "$(print_prompt "Select [1]: ")" -e -i 1 RSA_SIZE_CHOICE
             case $RSA_SIZE_CHOICE in
                 2) RSA_KEY_SIZE="3072" ;;
@@ -695,7 +695,7 @@ installQuestions() {
             echo "  1) prime256v1 (default, good security)"
             echo "  2) secp384r1 (stronger)"
             echo "  3) secp521r1 (strongest)"
-            
+
             read -rp "$(print_prompt "Select [1]: ")" -e -i 1 CURVE_CHOICE
             case $CURVE_CHOICE in
                 2) CERT_CURVE="secp384r1" ;;
@@ -703,17 +703,17 @@ installQuestions() {
                 *) CERT_CURVE="prime256v1" ;;
             esac
         fi
-        
+
         # Control channel cipher
         echo ""
         print_section "Control Channel"
         print_prompt "Choose control channel cipher:"
-        
+
         if [[ $CERT_TYPE == "ecdsa" ]]; then
             echo "  1) ECDHE-ECDSA-AES-128-GCM-SHA256 (recommended)"
             echo "  2) ECDHE-ECDSA-AES-256-GCM-SHA384"
             echo "  3) ECDHE-ECDSA-CHACHA20-POLY1305"
-            
+
             read -rp "$(print_prompt "Select [1]: ")" -e -i 1 CC_CHOICE
             case $CC_CHOICE in
                 2) CC_CIPHER="TLS-ECDHE-ECDSA-WITH-AES-256-GCM-SHA384" ;;
@@ -724,7 +724,7 @@ installQuestions() {
             echo "  1) ECDHE-RSA-AES-128-GCM-SHA256 (recommended)"
             echo "  2) ECDHE-RSA-AES-256-GCM-SHA384"
             echo "  3) ECDHE-RSA-CHACHA20-POLY1305"
-            
+
             read -rp "$(print_prompt "Select [1]: ")" -e -i 1 CC_CHOICE
             case $CC_CHOICE in
                 2) CC_CIPHER="TLS-ECDHE-RSA-WITH-AES-256-GCM-SHA384" ;;
@@ -732,16 +732,16 @@ installQuestions() {
                 *) CC_CIPHER="TLS-ECDHE-RSA-WITH-AES-128-GCM-SHA256" ;;
             esac
         fi
-        
+
         # TLS version
         echo ""
         print_prompt "Choose minimum TLS version:"
         echo "  1) TLS 1.2 (recommended, compatible)"
         echo "  2) TLS 1.3 (more secure, requires OpenVPN 2.5+)"
-        
+
         read -rp "$(print_prompt "Select [1]: ")" -e -i 1 TLS_VER_CHOICE
         TLS_VERSION_MIN=$([[ $TLS_VER_CHOICE == "2" ]] && echo "1.3" || echo "1.2")
-        
+
         # TLS 1.3 ciphers
         echo ""
         print_prompt "Choose TLS 1.3 cipher suites:"
@@ -749,7 +749,7 @@ installQuestions() {
         echo "  2) AES-256-GCM only"
         echo "  3) AES-128-GCM only"
         echo "  4) ChaCha20-Poly1305 only"
-        
+
         read -rp "$(print_prompt "Select [1]: ")" -e -i 1 TLS13_CHOICE
         case $TLS13_CHOICE in
             2) TLS13_CIPHERSUITES="TLS_AES_256_GCM_SHA384" ;;
@@ -757,49 +757,49 @@ installQuestions() {
             4) TLS13_CIPHERSUITES="TLS_CHACHA20_POLY1305_SHA256" ;;
             *) TLS13_CIPHERSUITES="TLS_AES_256_GCM_SHA384:TLS_AES_128_GCM_SHA256:TLS_CHACHA20_POLY1305_SHA256" ;;
         esac
-        
+
         # TLS groups
         echo ""
         print_prompt "Choose TLS key exchange groups:"
         echo "  1) All modern curves (recommended)"
         echo "  2) X25519 only (most secure)"
         echo "  3) NIST curves only (prime256v1, secp384r1, secp521r1)"
-        
+
         read -rp "$(print_prompt "Select [1]: ")" -e -i 1 TLS_GROUPS_CHOICE
         case $TLS_GROUPS_CHOICE in
             2) TLS_GROUPS="X25519" ;;
             3) TLS_GROUPS="prime256v1:secp384r1:secp521r1" ;;
             *) TLS_GROUPS="X25519:prime256v1:secp384r1:secp521r1" ;;
         esac
-        
+
         # HMAC algorithm
         echo ""
         print_prompt "Choose HMAC digest algorithm:"
         echo "  1) SHA256 (recommended)"
         echo "  2) SHA384"
         echo "  3) SHA512"
-        
+
         read -rp "$(print_prompt "Select [1]: ")" -e -i 1 HMAC_CHOICE
         case $HMAC_CHOICE in
             2) HMAC_ALG="SHA384" ;;
             3) HMAC_ALG="SHA512" ;;
             *) HMAC_ALG="SHA256" ;;
         esac
-        
+
         # TLS signature mode
         echo ""
         print_prompt "Choose control channel security:"
         echo "  1) tls-crypt-v2 (recommended) - Encrypts control channel, unique key per client"
         echo "  2) tls-crypt - Encrypts control channel, shared key"
         echo "  3) tls-auth - Authenticates only, no encryption"
-        
+
         read -rp "$(print_prompt "Select [1]: ")" -e -i 1 TLS_SIG_CHOICE
         case $TLS_SIG_CHOICE in
             2) TLS_SIG="crypt" ;;
             3) TLS_SIG="auth" ;;
             *) TLS_SIG="crypt-v2" ;;
         esac
-        
+
     else
         # Default encryption settings
         CIPHER="AES-128-GCM"
@@ -813,7 +813,7 @@ installQuestions() {
         HMAC_ALG="SHA256"
         TLS_SIG="crypt-v2"
     fi
-    
+
     echo ""
     print_section "Configuration Summary"
     print_status "Protocol" "$PROTOCOL"
@@ -823,7 +823,7 @@ installQuestions() {
     print_status "Cipher" "$CIPHER"
     print_status "Certificate Type" "$CERT_TYPE"
     echo ""
-    
+
     read -n1 -r -p "$(print_prompt "Press any key to continue...")"
     echo ""
 }
@@ -834,7 +834,7 @@ installQuestions() {
 
 installOpenVPNRepo() {
     log_info "Setting up OpenVPN repository..."
-    
+
     if [[ $OS =~ (debian|ubuntu) ]]; then
         apt-get update
         apt-get install -y ca-certificates curl
@@ -847,7 +847,7 @@ installOpenVPNRepo() {
 
 installUnbound() {
     log_info "Installing Unbound..."
-    
+
     if [[ ! -e /etc/unbound/unbound.conf ]]; then
         case $OS in
             debian|ubuntu) apt-get install -y unbound ;;
@@ -856,11 +856,11 @@ installUnbound() {
             arch) pacman -Syu --noconfirm unbound ;;
         esac
     fi
-    
+
     mkdir -p /etc/unbound/unbound.conf.d
     VPN_GATEWAY_IPV4="${VPN_SUBNET_IPV4%.*}.1"
     [[ $CLIENT_IPV6 == "y" ]] && VPN_GATEWAY_IPV6="${VPN_SUBNET_IPV6}1"
-    
+
     cat > /etc/unbound/unbound.conf.d/openvpn.conf <<EOF
 server:
     interface: $VPN_GATEWAY_IPV4
@@ -869,19 +869,19 @@ server:
     hide-version: yes
     prefetch: yes
 EOF
-    
+
     systemctl enable unbound
     systemctl restart unbound
 }
 
 installOpenVPN() {
     print_header "Installing OpenVPN"
-    
+
     NIC=$(ip -4 route ls | grep default | grep -Po '(?<=dev )(\S+)' | head -1)
     [[ -z $NIC && $CLIENT_IPV6 == "y" ]] && NIC=$(ip -6 route show default | sed -ne 's/^default .* dev \([^ ]*\) .*$/\1/p')
-    
+
     installOpenVPNRepo
-    
+
     log_info "Installing OpenVPN packages..."
     case $OS in
         debian|ubuntu) apt-get install -y openvpn iptables openssl ca-certificates curl tar bind9-host socat ;;
@@ -889,7 +889,7 @@ installOpenVPN() {
         fedora|amzn2023) dnf install -y openvpn iptables openssl ca-certificates curl tar bind-utils socat ;;
         arch) pacman -Syu --needed --noconfirm openvpn iptables openssl ca-certificates curl tar bind socat ;;
     esac
-    
+
     if id openvpn &>/dev/null; then
         OPENVPN_USER=openvpn
         OPENVPN_GROUP=$(id -gn openvpn)
@@ -897,46 +897,46 @@ installOpenVPN() {
         OPENVPN_USER=nobody
         OPENVPN_GROUP=$(grep -qs "^nogroup:" /etc/group && echo "nogroup" || echo "nobody")
     fi
-    
+
     if [[ ! -d /etc/openvpn/server/easy-rsa/ ]]; then
         mkdir -p /etc/openvpn/server/easy-rsa
         curl -fL -o /tmp/easy-rsa.tgz https://github.com/OpenVPN/easy-rsa/releases/download/v${EASYRSA_VERSION}/EasyRSA-${EASYRSA_VERSION}.tgz
         tar xzf /tmp/easy-rsa.tgz --strip-components=1 -C /etc/openvpn/server/easy-rsa
         rm -f /tmp/easy-rsa.tgz
-        
+
         cd /etc/openvpn/server/easy-rsa || exit
-        
+
         cat > vars <<EOF
 set_var EASYRSA_ALGO $([[ $CERT_TYPE == "ecdsa" ]] && echo "ec" || echo "rsa")
 set_var EASYRSA_CURVE $CERT_CURVE
 set_var EASYRSA_KEY_SIZE ${RSA_KEY_SIZE:-2048}
 EOF
-        
+
         SERVER_CN="cn_$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 16 | head -n1)"
         SERVER_NAME="server_$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 16 | head -n1)"
-        
+
         ./easyrsa init-pki
-        
+
         if [[ $AUTH_MODE == "pki" ]]; then
             export EASYRSA_CA_EXPIRE=$DEFAULT_CERT_VALIDITY_DURATION_DAYS
             ./easyrsa --batch --req-cn="$SERVER_CN" build-ca nopass
-            
+
             export EASYRSA_CERT_EXPIRE=${SERVER_CERT_DURATION_DAYS:-$DEFAULT_CERT_VALIDITY_DURATION_DAYS}
             ./easyrsa --batch build-server-full "$SERVER_NAME" nopass
-            
+
             export EASYRSA_CRL_DAYS=$DEFAULT_CRL_VALIDITY_DURATION_DAYS
             ./easyrsa gen-crl
         else
             export EASYRSA_CERT_EXPIRE=${SERVER_CERT_DURATION_DAYS:-$DEFAULT_CERT_VALIDITY_DURATION_DAYS}
             ./easyrsa --batch self-sign-server "$SERVER_NAME" nopass
         fi
-        
+
         case $TLS_SIG in
             crypt-v2) openvpn --genkey tls-crypt-v2-server /etc/openvpn/server/tls-crypt-v2.key ;;
             crypt) openvpn --genkey secret /etc/openvpn/server/tls-crypt.key ;;
             auth) openvpn --genkey secret /etc/openvpn/server/tls-auth.key ;;
         esac
-        
+
         echo "$SERVER_NAME" > SERVER_NAME_GENERATED
         echo "$AUTH_MODE" > AUTH_MODE_GENERATED
     else
@@ -944,13 +944,13 @@ EOF
         SERVER_NAME=$(cat SERVER_NAME_GENERATED 2>/dev/null || echo "server")
         AUTH_MODE=$(cat AUTH_MODE_GENERATED 2>/dev/null || echo "pki")
     fi
-    
+
     if [[ $AUTH_MODE == "pki" ]]; then
         cp pki/ca.crt pki/private/ca.key pki/issued/$SERVER_NAME.crt pki/private/$SERVER_NAME.key pki/crl.pem /etc/openvpn/server/ 2>/dev/null
     else
         cp pki/issued/$SERVER_NAME.crt pki/private/$SERVER_NAME.key /etc/openvpn/server/ 2>/dev/null
     fi
-    
+
     cat > /etc/openvpn/server/server.conf <<EOF
 port $PORT
 proto ${PROTOCOL}${ENDPOINT_TYPE}
@@ -963,11 +963,11 @@ keepalive 10 120
 topology subnet
 server $VPN_SUBNET_IPV4 255.255.255.0
 EOF
-    
+
     [[ $CLIENT_IPV6 == "y" ]] && echo "server-ipv6 ${VPN_SUBNET_IPV6}/112" >> /etc/openvpn/server/server.conf
     [[ $MULTI_CLIENT == "y" ]] && echo "duplicate-cn" >> /etc/openvpn/server/server.conf
     [[ $MULTI_CLIENT != "y" ]] && echo "ifconfig-pool-persist ipp.txt" >> /etc/openvpn/server/server.conf
-    
+
     if [[ $DNS == "system" ]]; then
         RESOLVCONF=$(grep -q "127.0.0.53" /etc/resolv.conf && echo "/run/systemd/resolve/resolv.conf" || echo "/etc/resolv.conf")
         grep nameserver "$RESOLVCONF" | while read -r line; do
@@ -983,10 +983,10 @@ EOF
             [[ -n $dns ]] && echo "push \"dhcp-option DNS $dns\"" >> /etc/openvpn/server/server.conf
         done < <(get_dns_servers "$DNS" "false")
     fi
-    
+
     echo 'push "redirect-gateway def1 bypass-dhcp"' >> /etc/openvpn/server/server.conf
     [[ $CLIENT_IPV6 == "y" ]] && echo 'push "redirect-gateway ipv6"' >> /etc/openvpn/server/server.conf
-    
+
     {
         echo "dh none"
         echo "tls-groups $TLS_GROUPS"
@@ -1009,13 +1009,13 @@ EOF
         echo "status /var/log/openvpn/status.log"
         echo "verb 3"
     } >> /etc/openvpn/server/server.conf
-    
+
     mkdir -p /etc/openvpn/server/ccd /var/log/openvpn
-    
+
     echo 'net.ipv4.ip_forward=1' > /etc/sysctl.d/99-openvpn.conf
     [[ $CLIENT_IPV6 == "y" ]] && echo 'net.ipv6.conf.all.forwarding=1' >> /etc/sysctl.d/99-openvpn.conf
     sysctl --system
-    
+
     if systemctl is-active --quiet firewalld; then
         firewall-cmd --permanent --add-port="$PORT/$PROTOCOL"
         firewall-cmd --permanent --add-masquerade
@@ -1027,13 +1027,13 @@ EOF
         iptables -A FORWARD -o tun+ -j ACCEPT 2>/dev/null
         iptables -A INPUT -i $NIC -p $PROTOCOL --dport $PORT -j ACCEPT 2>/dev/null
     fi
-    
+
     systemctl daemon-reload
     systemctl enable openvpn-server@server
     [[ $AUTH_MODE == "pki" ]] && systemctl restart openvpn-server@server
-    
+
     [[ $DNS == "unbound" ]] && installUnbound
-    
+
     cat > /etc/openvpn/server/client-template.txt <<EOF
 client
 dev tun
@@ -1049,13 +1049,13 @@ cipher $CIPHER
 data-ciphers $CIPHER
 verb 3
 EOF
-    
+
     if [[ $NEW_CLIENT != "n" ]]; then
         print_info "Generating first client..."
         newClient
         [[ $AUTH_MODE == "fingerprint" ]] && systemctl restart openvpn-server@server
     fi
-    
+
     print_success "OpenVPN installation complete!"
 }
 
@@ -1077,10 +1077,10 @@ getHomeDir() {
 writeClientConfig() {
     local client="$1"
     local filepath="${CLIENT_FILEPATH:-$(getHomeDir "$client")/$client.ovpn}"
-    
+
     mkdir -p "$(dirname "$filepath")"
     cp /etc/openvpn/server/client-template.txt "$filepath"
-    
+
     {
         echo "<ca>"
         cat /etc/openvpn/server/ca.crt 2>/dev/null
@@ -1091,7 +1091,7 @@ writeClientConfig() {
         echo "<key>"
         cat "/etc/openvpn/server/easy-rsa/pki/private/$client.key" 2>/dev/null
         echo "</key>"
-        
+
         if [[ -f /etc/openvpn/server/tls-crypt-v2.key ]]; then
             local tls_key
             tls_key=$(mktemp)
@@ -1111,27 +1111,27 @@ writeClientConfig() {
             echo "</tls-auth>"
         fi
     } >> "$filepath" 2>/dev/null
-    
+
     GENERATED_CONFIG_PATH="$filepath"
 }
 
 newClient() {
     print_header "New Client"
-    
+
     if [[ -z $CLIENT ]] || ! is_valid_client_name "$CLIENT"; then
         until is_valid_client_name "$CLIENT"; do
             read -rp "$(print_prompt "Client name: ")" CLIENT
         done
     fi
-    
+
     cd /etc/openvpn/server/easy-rsa || exit
-    
+
     if [[ -f "pki/issued/$CLIENT.crt" ]]; then
         log_fatal "Client $CLIENT already exists"
     fi
-    
+
     export EASYRSA_CERT_EXPIRE=${CLIENT_CERT_DURATION_DAYS:-$DEFAULT_CERT_VALIDITY_DURATION_DAYS}
-    
+
     if [[ $PASS == "2" ]]; then
         if [[ -n "$PASSPHRASE" ]]; then
             export EASYRSA_PASSPHRASE="$PASSPHRASE"
@@ -1143,19 +1143,19 @@ newClient() {
     else
         ./easyrsa --batch build-client-full "$CLIENT" nopass
     fi
-    
+
     writeClientConfig "$CLIENT"
     print_success "Client $CLIENT created: $GENERATED_CONFIG_PATH"
 }
 
 listClients() {
     print_header "Client List"
-    
+
     if [[ ! -d /etc/openvpn/server/easy-rsa/pki ]]; then
         print_warning "No OpenVPN installation found"
         return
     fi
-    
+
     local count=0
     echo ""
     while read -r line; do
@@ -1164,19 +1164,19 @@ listClients() {
             [[ $client != server_* ]] && echo "    ✓ $client" && ((count++))
         fi
     done < /etc/openvpn/server/easy-rsa/pki/index.txt 2>/dev/null
-    
+
     [[ $count -eq 0 ]] && print_warning "No clients found"
     echo ""
 }
 
 revokeClient() {
     print_header "Revoke Client"
-    
+
     if [[ ! -f /etc/openvpn/server/easy-rsa/pki/index.txt ]]; then
         print_warning "No clients found"
         return
     fi
-    
+
     local clients=()
     while read -r line; do
         if [[ $line =~ ^V.*CN=([^/]+) ]]; then
@@ -1184,40 +1184,40 @@ revokeClient() {
             [[ $client != server_* ]] && clients+=("$client")
         fi
     done < /etc/openvpn/server/easy-rsa/pki/index.txt
-    
+
     if [[ ${#clients[@]} -eq 0 ]]; then
         print_warning "No clients to revoke"
         return
     fi
-    
+
     echo "Available clients:"
     for i in "${!clients[@]}"; do
         echo "  $((i+1))) ${clients[$i]}"
     done
     echo ""
-    
+
     local choice
     read -rp "$(print_prompt "Select client [1-${#clients[@]}]: ")" choice
     [[ $choice =~ ^[0-9]+$ && $choice -ge 1 && $choice -le ${#clients[@]} ]] || log_fatal "Invalid selection"
-    
+
     CLIENT="${clients[$((choice-1))]}"
-    
+
     cd /etc/openvpn/server/easy-rsa || exit
     ./easyrsa --batch revoke "$CLIENT"
     ./easyrsa gen-crl
     cp pki/crl.pem /etc/openvpn/server/ 2>/dev/null
-    
+
     print_success "Client $CLIENT revoked"
 }
 
 listConnectedClients() {
     print_header "Connected Clients"
-    
+
     if [[ ! -f /var/log/openvpn/status.log ]]; then
         print_warning "Status file not found"
         return
     fi
-    
+
     local count=0
     echo ""
     while IFS=',' read -r _ name real_addr _ _ _ _ connected _; do
@@ -1226,7 +1226,7 @@ listConnectedClients() {
             ((count++))
         fi
     done < <(grep "^CLIENT_LIST" /var/log/openvpn/status.log 2>/dev/null)
-    
+
     [[ $count -eq 0 ]] && echo "  No clients currently connected"
     echo ""
     print_info "Note: Status updates every 60 seconds"
@@ -1261,26 +1261,26 @@ removeUnbound() {
 
 removeOpenVPN() {
     print_header "Removing OpenVPN"
-    
+
     read -rp "Really remove OpenVPN? [y/N]: " REMOVE
     [[ $REMOVE != "y" ]] && return
-    
+
     systemctl stop openvpn-server@server 2>/dev/null
     systemctl disable openvpn-server@server 2>/dev/null
-    
+
     case $OS in
         debian|ubuntu) apt-get remove --purge -y openvpn ;;
         centos|oracle) yum remove -y openvpn ;;
         fedora|amzn2023) dnf remove -y openvpn ;;
         arch) pacman -Rns --noconfirm openvpn ;;
     esac
-    
+
     rm -rf /etc/openvpn /var/log/openvpn /etc/sysctl.d/99-openvpn.conf
-    
+
     if [[ -f /etc/unbound/unbound.conf.d/openvpn.conf ]]; then
         removeUnbound
     fi
-    
+
     # Remove firewall rules if iptables
     if command -v iptables &>/dev/null; then
         iptables -t nat -D POSTROUTING -s $VPN_SUBNET_IPV4/24 -o $NIC -j MASQUERADE 2>/dev/null
@@ -1289,7 +1289,7 @@ removeOpenVPN() {
         iptables -D FORWARD -o tun+ -j ACCEPT 2>/dev/null
         iptables -D INPUT -i $NIC -p $PROTOCOL --dport $PORT -j ACCEPT 2>/dev/null
     fi
-    
+
     print_success "OpenVPN removed"
 }
 
@@ -1300,7 +1300,7 @@ removeOpenVPN() {
 manageMenu() {
     while true; do
         print_header "OpenVPN Management"
-        
+
         echo ""
         print_menu_option "1" "Add a new client"
         print_menu_option "2" "List clients"
@@ -1309,9 +1309,9 @@ manageMenu() {
         print_menu_option "5" "Remove OpenVPN"
         print_menu_option "6" "Exit"
         echo ""
-        
+
         read -rp "$(print_prompt "Select [1-6]: ")" choice
-        
+
         case $choice in
             1) newClient ;;
             2) listClients ;;
@@ -1455,7 +1455,7 @@ cmd_install() {
     local interactive=false
     local no_client=false
     local list_dns=false
-    
+
     while [[ $# -gt 0 ]]; do
         case "$1" in
             -i|--interactive) interactive=true ;;
@@ -1467,11 +1467,11 @@ cmd_install() {
         esac
         shift
     done
-    
+
     [[ $list_dns == true ]] && { list_dns_providers; exit 0; }
-    
+
     requireNoOpenVPN
-    
+
     if [[ $interactive == true ]]; then
         installQuestions
     else
@@ -1481,7 +1481,7 @@ cmd_install() {
         validate_configuration
         detect_server_ips
     fi
-    
+
     NEW_CLIENT=$([[ $no_client == true ]] && echo "n" || echo "y")
     prepare_network_config
     installOpenVPN
@@ -1489,7 +1489,7 @@ cmd_install() {
 
 cmd_uninstall() {
     local force=false
-    
+
     while [[ $# -gt 0 ]]; do
         case "$1" in
             -f|--force) force=true ;;
@@ -1497,7 +1497,7 @@ cmd_uninstall() {
         esac
         shift
     done
-    
+
     requireOpenVPN
     removeOpenVPN
 }
@@ -1505,7 +1505,7 @@ cmd_uninstall() {
 cmd_client() {
     local subcmd="${1:-}"
     shift || true
-    
+
     case "$subcmd" in
         add) cmd_client_add "$@" ;;
         list) cmd_client_list "$@" ;;
@@ -1519,7 +1519,7 @@ cmd_client() {
 cmd_client_add() {
     local client_name=""
     local password_flag=false
-    
+
     while [[ $# -gt 0 ]]; do
         case "$1" in
             --password) password_flag=true; PASS=2 ;;
@@ -1529,18 +1529,18 @@ cmd_client_add() {
         esac
         shift
     done
-    
+
     [[ -z "$client_name" ]] && log_fatal "Client name required"
     validate_client_name "$client_name"
     requireOpenVPN
-    
+
     CLIENT="$client_name"
     newClient
 }
 
 cmd_client_list() {
     local format="table"
-    
+
     while [[ $# -gt 0 ]]; do
         case "$1" in
             --format) shift; format="$1" ;;
@@ -1548,7 +1548,7 @@ cmd_client_list() {
         esac
         shift
     done
-    
+
     requireOpenVPN
     OUTPUT_FORMAT="$format" listClients
 }
@@ -1556,7 +1556,7 @@ cmd_client_list() {
 cmd_client_revoke() {
     local client_name=""
     local force=false
-    
+
     while [[ $# -gt 0 ]]; do
         case "$1" in
             -f|--force) force=true ;;
@@ -1565,10 +1565,10 @@ cmd_client_revoke() {
         esac
         shift
     done
-    
+
     [[ -z "$client_name" ]] && log_fatal "Client name required"
     requireOpenVPN
-    
+
     CLIENT="$client_name"
     revokeClient
 }
@@ -1576,7 +1576,7 @@ cmd_client_revoke() {
 cmd_server() {
     local subcmd="${1:-}"
     shift || true
-    
+
     case "$subcmd" in
         status) listConnectedClients ;;
         renew) renewServer ;;
@@ -1615,19 +1615,19 @@ parse_args() {
         esac
         shift
     done
-    
+
     local cmd="${1:-}"
-    
+
     # If no command provided, run interactive mode
     if [[ -z "$cmd" ]]; then
         initialCheck
         cmd_interactive
         return
     fi
-    
+
     # Shift past the command
     shift 2>/dev/null || true
-    
+
     # Handle commands
     case "$cmd" in
         install) initialCheck; cmd_install "$@" ;;
