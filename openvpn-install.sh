@@ -1207,7 +1207,11 @@ revokeClient() {
     ./easyrsa gen-crl
     cp pki/crl.pem /etc/openvpn/server/ 2>/dev/null
 
-    print_success "Client $CLIENT revoked"
+    # Remove the client's .ovpn file from all possible locations
+    find /home/ -maxdepth 2 -name "$CLIENT.ovpn" -delete 2>/dev/null
+    rm -f "/root/$CLIENT.ovpn" 2>/dev/null
+
+    print_success "Client $CLIENT revoked and configuration files removed"
 }
 
 listConnectedClients() {
@@ -1265,6 +1269,25 @@ removeOpenVPN() {
     read -rp "Really remove OpenVPN? [y/N]: " REMOVE
     [[ $REMOVE != "y" ]] && return
 
+    # First, revoke all clients and remove their config files
+    if [[ -f /etc/openvpn/server/easy-rsa/pki/index.txt ]]; then
+        print_info "Revoking all client certificates..."
+        cd /etc/openvpn/server/easy-rsa || exit
+        
+        while read -r line; do
+            if [[ $line =~ ^V.*CN=([^/]+) ]]; then
+                client="${BASH_REMATCH[1]}"
+                if [[ $client != server_* ]]; then
+                    ./easyrsa --batch revoke "$client" 2>/dev/null
+                    find /home/ -maxdepth 2 -name "$client.ovpn" -delete 2>/dev/null
+                    rm -f "/root/$client.ovpn" 2>/dev/null
+                fi
+            fi
+        done < /etc/openvpn/server/easy-rsa/pki/index.txt
+        
+        ./easyrsa gen-crl 2>/dev/null
+    fi
+
     systemctl stop openvpn-server@server 2>/dev/null
     systemctl disable openvpn-server@server 2>/dev/null
 
@@ -1274,6 +1297,10 @@ removeOpenVPN() {
         fedora|amzn2023) dnf remove -y openvpn ;;
         arch) pacman -Rns --noconfirm openvpn ;;
     esac
+
+    # Remove all remaining .ovpn files
+    find /home/ -maxdepth 2 -name "*.ovpn" -delete 2>/dev/null
+    rm -f /root/*.ovpn 2>/dev/null
 
     rm -rf /etc/openvpn /var/log/openvpn /etc/sysctl.d/99-openvpn.conf
 
@@ -1290,7 +1317,7 @@ removeOpenVPN() {
         iptables -D INPUT -i $NIC -p $PROTOCOL --dport $PORT -j ACCEPT 2>/dev/null
     fi
 
-    print_success "OpenVPN removed"
+    print_success "OpenVPN removed with all client configurations"
 }
 
 # =============================================================================
