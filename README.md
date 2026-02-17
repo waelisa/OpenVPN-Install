@@ -277,3 +277,5 @@ Based on the excellent [angristan/openvpn-install](https://github.com/angristan/
 *   **Wiki**: [Documentation](https://github.com/waelisa/OpenVPN-Install/wiki)
 
 **Made with ❤️ for the Open Source community**
+
+[Donate link – PayPal](https://www.paypal.me/WaelIsa)
