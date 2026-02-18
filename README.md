@@ -92,7 +92,25 @@ sudo ./openvpn-install.sh install --dns-list
 
 bash
 
-# Add a new clientsudo ./openvpn-install.sh client add john# Add client with password protectionsudo ./openvpn-install.sh client add jane --password# List all clientssudo ./openvpn-install.sh client list# Revoke a client (automatically removes .ovpn files)sudo ./openvpn-install.sh client revoke john# List clients in JSON formatsudo ./openvpn-install.sh client list --format json
+# Add a new client
+
+sudo ./openvpn-install.sh client add john
+
+# Add client with password protection
+
+sudo ./openvpn-install.sh client add jane --password
+
+# List all client
+
+ssudo ./openvpn-install.sh client list
+
+# Revoke a client (automatically removes .ovpn files)
+
+sudo ./openvpn-install.sh client revoke john
+
+# List clients in JSON format
+
+sudo ./openvpn-install.sh client list --format json
 
 ### **Server Management**
 
