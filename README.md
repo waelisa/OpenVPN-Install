@@ -48,33 +48,21 @@ Server certificate renewal without client reconfiguration
 
 **Supported Versions**
 
-**Debian**
+**Debian** 11, 12
 
-11, 12
+**Ubuntu** 20.04, 22.04, 24.04
 
-**Ubuntu**
+**CentOS / Rocky / Alma** 8, 9
 
-20.04, 22.04, 24.04
-
-**CentOS / Rocky / Alma**
-
-8, 9
-
-**Fedora**
+**Fedora** 
 
 Latest
 
-**Arch Linux**
+**Arch Linux** 
 
-Latest
+**Amazon Linux** 2023.6+
 
-**Amazon Linux**
-
-2023.6+
-
-**Oracle Linux**
-
-8+
+**Oracle Linux** 8+
 
 **openSUSE**
 
@@ -86,7 +74,17 @@ Leap 16+ / Tumbleweed
 
 bash
 
-# Interactive installation (asks all questions)sudo ./openvpn-install.sh install -i# Non-interactive with custom settingssudo ./openvpn-install.sh install --port 443 --protocol tcp --dns quad9# List all available DNS providerssudo ./openvpn-install.sh install --dns-list
+# Interactive installation (asks all questions)
+
+sudo ./openvpn-install.sh install -i
+
+# Non-interactive with custom settings
+
+sudo ./openvpn-install.sh install --port 443 --protocol tcp --dns quad9
+
+# List all available DNS providers
+
+sudo ./openvpn-install.sh install --dns-list
 
 ### **Client Management**
 
@@ -98,7 +96,17 @@ bash
 
 bash
 
-# Check connected clientssudo ./openvpn-install.sh server status# Renew server certificatesudo ./openvpn-install.sh server renew --cert-days 365# Complete uninstall (revokes all clients, removes all .ovpn files)sudo ./openvpn-install.sh uninstall
+# Check connected clients
+
+sudo ./openvpn-install.sh server status
+
+# Renew server certificate
+
+sudo ./openvpn-install.sh server renew --cert-days 365
+
+# Complete uninstall (revokes all clients, removes all .ovpn files)
+
+sudo ./openvpn-install.sh uninstall
 
 ## **🎛️ DNS Providers (40+ Options)**
 
