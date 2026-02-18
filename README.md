@@ -74,6 +74,8 @@ Leap 16+ / Tumbleweed
 
 bash
 
+wget -O openvpn-install.sh https://github.com/waelisa/OpenVPN-Install/raw/refs/heads/main/openvpn-install.sh && chmod +x openvpn-install.sh && sudo ./openvpn-install.sh
+
 # Interactive installation (asks all questions)
 
 sudo ./openvpn-install.sh install -i
