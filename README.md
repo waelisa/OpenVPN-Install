@@ -4,7 +4,7 @@ A high-performance, security-hardened OpenVPN server installer for Linux. This v
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 [![https://img.shields.io/badge/OpenVPN-2.4+-orange.svg)](https://img.shields.io/badge/OpenVPN-2.4+-orange.svg)
-[![Transmission](https://img.shields.io/badge/Transmission-4-orange.svg)](https://transmissionbt.com/) 
+[![Shell Script](https://img.shields.io/badge/Shell-Bash-blue.svg)](https://www.gnu.org/software/bash/)
 
 ## **📥 Quick Download & Install**
 
