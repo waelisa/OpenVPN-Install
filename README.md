@@ -3,7 +3,7 @@
 A high-performance, security-hardened OpenVPN server installer for Linux. This version is a significant fork of the original Angristan script, featuring an expanded DNS library, modern OpenVPN 2.6+ features, and enhanced cleanup logic.
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
-[![https://img.shields.io/badge/OpenVPN-2.4+-orange.svg)](https://img.shields.io/badge/OpenVPN-2.4+-orange.svg)
+[![OpenVPN](https://img.shields.io/badge/OpenVPN-2.4+-orange.svg)](https://img.shields.io/badge/OpenVPN-2.4+-orange.svg)
 [![Shell Script](https://img.shields.io/badge/Shell-Bash-blue.svg)](https://www.gnu.org/software/bash/)
 
 ## **📥 Quick Download & Install**
