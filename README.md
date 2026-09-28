@@ -281,10 +281,6 @@ When you select "y" during encryption customization, you get full control over:
 *   ✅ Improved IPv4/IPv6 detection
 *   ✅ Added complete encryption customization menu
 
-### **Version 1.0 (Original)**
-
-*   Base Angristan OpenVPN installer
-
 ## **🤝 Contributing**
 
 Contributions are welcome! Please feel free to submit a Pull Request.
