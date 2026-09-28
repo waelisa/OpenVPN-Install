@@ -1,6 +1,148 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC1091,SC2034
 
+#############################################################################################################################
+#
+# Wael Isa
+# Website:  https://www.wael.name
+# GitHub:   https://github.com/waelisa
+# Version:  v1.0.2
+# Build Date: 09/28/2026
+# License: MIT
+#
+# ██╗    ██╗ █████╗ ███████╗██╗         ██╗███████╗ █████╗
+# ██║    ██║██╔══██╗██╔════╝██║         ██║██╔════╝██╔══██╗
+# ██║ █╗ ██║███████║█████╗  ██║         ██║███████╗███████║
+# ██║███╗██║██╔══██║██╔══╝  ██║         ██║╚════██║██╔══██║
+# ╚███╔███╔╝██║  ██║███████╗███████╗    ██║███████╗██║  ██║
+# ╚══╝╚══╝ ╚═╝  ╚═╝╚══════╝╚══════╝    ╚═╝╚══════╝╚═╝  ╚═╝
+#
+# Description:
+#   Secure OpenVPN server installer and manager. Provides both an
+#   interactive wizard and a non-interactive CLI for installing,
+#   configuring, and managing an OpenVPN server, with a wide
+#   selection of DNS providers and full encryption customization.
+#
+# Project URL:
+#   https://github.com/waelisa/OpenVPN-Install
+#
+# Based on:
+#   https://github.com/angristan/openvpn-install
+#
+# Features:
+#   • One-shot OpenVPN server installer with sensible defaults
+#   • Interactive install wizard and non-interactive CLI mode
+#   • 30+ DNS providers (Cloudflare, Quad9, AdGuard, NextDNS, etc.)
+#   • Full encryption customization (ECDSA/RSA, ciphers, TLS options)
+#   • PKI and peer-fingerprint authentication modes
+#   • Client management: add, list, revoke, list connected clients
+#   • Multi-client support and per-client configuration
+#   • Firewalld and iptables integration with NAT / masquerade
+#   • Optional self-hosted Unbound recursive DNS resolver
+#   • Colored output, verbose mode, and file logging
+#   • Cross-distro: Debian/Ubuntu/CentOS/Rocky/Alma/Fedora/Arch
+#   • Non-interactive CLI flags for every encryption parameter
+#   • Encryption-list subcommand (like --dns-list)
+#   • Post-install health check
+#
+# Encryption Settings:
+#   The installer supports full customization of the following
+#   encryption parameters (interactive wizard, CLI flags, or
+#   environment variables):
+#
+#   Data Channel Cipher (--cipher / CIPHER):
+#     AES-128-GCM          Default. Fast, hardware-accelerated.
+#     AES-256-GCM          Stronger, still fast.
+#     CHACHA20-POLY1305    Best on CPUs without AES-NI (mobile/ARM).
+#     AES-128-CBC          Legacy, avoid unless required.
+#     AES-256-CBC          Legacy, avoid unless required.
+#
+#   Data Channel Fallback (--fallback-cipher / DATA_CIPHERS_FALLBACK):
+#     none                 Default. AEAD-only, OpenVPN 2.5+ required.
+#     AES-256-CBC          Legacy fallback for OpenVPN 2.3/2.4 clients.
+#     AES-128-CBC          Legacy fallback, slightly weaker.
+#
+#   Certificate Key Type (--cert-type / CERT_TYPE):
+#     ecdsa                Default. Smaller keys, faster handshake.
+#       --curve            prime256v1 (default) / secp384r1 / secp521r1
+#     rsa                  Traditional, wider legacy compatibility.
+#       --rsa-size         2048 (default) / 3072 / 4096
+#
+#   Control Channel Cipher (CC_CIPHER, derived from CERT_TYPE):
+#     ECDSA variants:      TLS-ECDHE-ECDSA-WITH-AES-128-GCM-SHA256 (default)
+#                          TLS-ECDHE-ECDSA-WITH-AES-256-GCM-SHA384
+#                          TLS-ECDHE-ECDSA-WITH-CHACHA20-POLY1305-SHA256
+#     RSA variants:        TLS-ECDHE-RSA-WITH-AES-128-GCM-SHA256 (default)
+#                          TLS-ECDHE-RSA-WITH-AES-256-GCM-SHA384
+#                          TLS-ECDHE-RSA-WITH-CHACHA20-POLY1305-SHA256
+#
+#   TLS Version (--tls-version / TLS_VERSION_MIN):
+#     1.2                  Default. Widest client compatibility.
+#     1.3                  Stronger, requires OpenVPN 2.5+.
+#
+#   TLS 1.3 Cipher Suites (TLS13_CIPHERSUITES):
+#     AES-256-GCM only     Default: TLS_AES_256_GCM_SHA384
+#     All secure suites    TLS_AES_256_GCM_SHA384:
+#                          TLS_AES_128_GCM_SHA256:
+#                          TLS_CHACHA20_POLY1305_SHA256
+#     AES-128-GCM only     TLS_AES_128_GCM_SHA256
+#     ChaCha20 only        TLS_CHACHA20_POLY1305_SHA256
+#
+#   TLS Key Exchange Groups (--tls-groups / TLS_GROUPS):
+#     All modern curves    Default: X25519:prime256v1:secp384r1:secp521r1
+#     X25519 only          Most modern / strongest.
+#     NIST curves only     prime256v1:secp384r1:secp521r1
+#
+#   HMAC Digest (--hmac / HMAC_ALG):
+#     SHA256               Default. Balanced.
+#     SHA384               Stronger.
+#     SHA512               Strongest, slower.
+#
+#   Control Channel Security (--tls-sig / TLS_SIG):
+#     tls-crypt-v2         Default. Encrypted control channel, unique
+#                          per-client key (OpenVPN 2.5+).
+#     tls-crypt            Encrypted control channel, shared key.
+#     tls-auth             Authenticated only (no encryption).
+#
+#   Authentication Mode (--auth-mode / AUTH_MODE):
+#     pki                  Default. Traditional CA + certificates.
+#     fingerprint          Peer-fingerprint (OpenVPN 2.6+), no CA.
+#
+#   Certificate Validity:
+#     DEFAULT_CERT_VALIDITY_DURATION_DAYS   3650 days (10 years)
+#     DEFAULT_CRL_VALIDITY_DURATION_DAYS    5475 days (15 years)
+#     Override per-run with CLIENT_CERT_DURATION_DAYS /
+#     SERVER_CERT_DURATION_DAYS environment variables.
+#
+#   DCO (Data Channel Offload) notes:
+#     To enable kernel-accelerated DCO, use AEAD ciphers only
+#     (no data-ciphers-fallback), keep dev tun (Layer 3),
+#     and disable compression. The defaults are DCO-ready.
+#
+# Changelog:
+#   v1.0.2
+#     - Added --fallback-cipher and data-ciphers-fallback support
+#     - Default TLS 1.3 cipher narrowed to TLS_AES_256_GCM_SHA384
+#     - Added CLI flags for all encryption parameters
+#     - Added --encryption-list subcommand
+#     - Fixed: openvpn-server@server is now always started after install
+#     - Fixed: client template uses ENDPOINT when server is behind NAT
+#     - Fixed: client template now emits data-ciphers[-fallback]
+#     - Fixed: client list --format json now produces valid JSON
+#     - Added: post-install health check
+#     - Added: server restart subcommand
+#
+#   v1.0.1
+#     - Updated project URL to https://github.com/waelisa/OpenVPN-Install
+#     - Refreshed script header with author, license, and feature list
+#     - Added complete Encryption Settings reference to header
+#     - Updated Build Date to 09/28/2026
+#
+#   v1.0.0
+#     - Initial complete release of OpenVPN installer & manager
+#
+#############################################################################################################################
+
 # Secure OpenVPN server installer - Complete Version
 # Based on https://github.com/angristan/openvpn-install
 
@@ -371,6 +513,72 @@ prepare_network_config() {
 }
 
 # =============================================================================
+# Encryption Options Listing (--encryption-list)
+# =============================================================================
+
+list_encryption_options() {
+    print_header "Supported Encryption Options"
+    echo ""
+
+    print_section "Data Channel Ciphers (--cipher)"
+    echo "  AES-128-GCM          default, fast, DCO-compatible"
+    echo "  AES-256-GCM          stronger, DCO-compatible"
+    echo "  CHACHA20-POLY1305    best on CPUs without AES-NI, DCO-compatible"
+    echo "  AES-128-CBC          legacy, not DCO-compatible"
+    echo "  AES-256-CBC          legacy, not DCO-compatible"
+
+    print_section "Data Channel Fallback (--fallback-cipher)"
+    echo "  none                 default, AEAD-only (requires OpenVPN 2.5+)"
+    echo "  AES-256-CBC          legacy fallback for OpenVPN 2.3/2.4"
+    echo "  AES-128-CBC          legacy fallback, slightly weaker"
+    echo "  AES-192-CBC          legacy fallback (validated but not prompted)"
+
+    print_section "Certificate Types & Keys"
+    echo "  --cert-type ecdsa    default, ECDSA certificates"
+    echo "  --curve prime256v1   default curve (also: secp384r1, secp521r1)"
+    echo "  --cert-type rsa      traditional RSA certificates"
+    echo "  --rsa-size 2048      default (also: 3072, 4096)"
+
+    print_section "Control Channel Ciphers (auto-selected from cert type)"
+    echo "  ECDSA default        TLS-ECDHE-ECDSA-WITH-AES-128-GCM-SHA256"
+    echo "  ECDSA strong         TLS-ECDHE-ECDSA-WITH-AES-256-GCM-SHA384"
+    echo "  ECDSA fast           TLS-ECDHE-ECDSA-WITH-CHACHA20-POLY1305-SHA256"
+    echo "  RSA default          TLS-ECDHE-RSA-WITH-AES-128-GCM-SHA256"
+    echo "  RSA strong           TLS-ECDHE-RSA-WITH-AES-256-GCM-SHA384"
+    echo "  RSA fast             TLS-ECDHE-RSA-WITH-CHACHA20-POLY1305-SHA256"
+
+    print_section "TLS Version (--tls-version)"
+    echo "  1.2                  default, widest compatibility"
+    echo "  1.3                  requires OpenVPN 2.5+"
+
+    print_section "TLS 1.3 Cipher Suites (default: TLS_AES_256_GCM_SHA384)"
+    echo "  TLS_AES_256_GCM_SHA384                    strongest single suite"
+    echo "  TLS_AES_128_GCM_SHA256                    fast, widely supported"
+    echo "  TLS_CHACHA20_POLY1305_SHA256              best without AES-NI"
+    echo "  All three, colon-separated                widest compatibility"
+
+    print_section "TLS Key Exchange Groups (--tls-groups)"
+    echo "  X25519:prime256v1:secp384r1:secp521r1     default, all modern curves"
+    echo "  X25519                                    most modern / strongest"
+    echo "  prime256v1:secp384r1:secp521r1            NIST curves only"
+
+    print_section "HMAC Digest (--hmac)"
+    echo "  SHA256               default, balanced"
+    echo "  SHA384               stronger"
+    echo "  SHA512               strongest, slightly slower"
+
+    print_section "Control Channel Security (--tls-sig)"
+    echo "  crypt-v2             default, tls-crypt-v2 (per-client key)"
+    echo "  crypt                tls-crypt (shared encryption key)"
+    echo "  auth                 tls-auth (HMAC authentication only)"
+
+    print_section "Authentication Mode (--auth-mode)"
+    echo "  pki                  default, traditional CA + certificates"
+    echo "  fingerprint          peer-fingerprint (OpenVPN 2.6+)"
+    echo ""
+}
+
+# =============================================================================
 # DNS Provider Selection (Expanded)
 # =============================================================================
 
@@ -473,11 +681,12 @@ set_installation_defaults() {
 
     # Encryption defaults
     CIPHER="${CIPHER:-AES-128-GCM}"
+    DATA_CIPHERS_FALLBACK="${DATA_CIPHERS_FALLBACK:-none}"
     CERT_TYPE="${CERT_TYPE:-ecdsa}"
     CERT_CURVE="${CERT_CURVE:-prime256v1}"
     RSA_KEY_SIZE="${RSA_KEY_SIZE:-2048}"
     TLS_VERSION_MIN="${TLS_VERSION_MIN:-1.2}"
-    TLS13_CIPHERSUITES="${TLS13_CIPHERSUITES:-TLS_AES_256_GCM_SHA384:TLS_AES_128_GCM_SHA256:TLS_CHACHA20_POLY1305_SHA256}"
+    TLS13_CIPHERSUITES="${TLS13_CIPHERSUITES:-TLS_AES_256_GCM_SHA384}"
     TLS_GROUPS="${TLS_GROUPS:-X25519:prime256v1:secp384r1:secp521r1}"
     HMAC_ALG="${HMAC_ALG:-SHA256}"
     TLS_SIG="${TLS_SIG:-crypt-v2}"
@@ -505,6 +714,8 @@ validate_configuration() {
     [[ $CERT_TYPE =~ ^(ecdsa|rsa)$ ]] || log_fatal "Invalid cert type: $CERT_TYPE"
     [[ $TLS_SIG =~ ^(crypt-v2|crypt|auth)$ ]] || log_fatal "Invalid TLS mode: $TLS_SIG"
     [[ $AUTH_MODE =~ ^(pki|fingerprint)$ ]] || log_fatal "Invalid auth mode: $AUTH_MODE"
+    [[ $DATA_CIPHERS_FALLBACK =~ ^(none|AES-128-CBC|AES-192-CBC|AES-256-CBC)$ ]] \
+        || log_fatal "Invalid data-ciphers-fallback: $DATA_CIPHERS_FALLBACK"
     validate_port "$PORT" || log_fatal "Invalid port: $PORT"
     [[ $CLIENT_IPV4 == "y" || $CLIENT_IPV6 == "y" ]] || log_fatal "At least one IP version required"
     [[ $ENDPOINT_TYPE =~ ^[46]$ ]] || log_fatal "Invalid endpoint type: $ENDPOINT_TYPE"
@@ -665,6 +876,21 @@ installQuestions() {
             *) CIPHER="AES-128-GCM" ;;
         esac
 
+        # Data channel fallback cipher (legacy clients)
+        echo ""
+        print_section "Data Channel Fallback"
+        print_prompt "Enable a fallback cipher for legacy clients (OpenVPN < 2.5)?"
+        echo "  1) None (recommended) - AEAD-only, all clients must be OpenVPN 2.5+"
+        echo "  2) AES-256-CBC - Compatibility with OpenVPN 2.4 / 2.3"
+        echo "  3) AES-128-CBC - Legacy compatibility, slightly weaker"
+
+        read -rp "$(print_prompt "Select [1]: ")" -e -i 1 FALLBACK_CHOICE
+        case $FALLBACK_CHOICE in
+            2) DATA_CIPHERS_FALLBACK="AES-256-CBC" ;;
+            3) DATA_CIPHERS_FALLBACK="AES-128-CBC" ;;
+            *) DATA_CIPHERS_FALLBACK="none" ;;
+        esac
+
         # Certificate type
         echo ""
         print_section "Certificate Type"
@@ -745,17 +971,17 @@ installQuestions() {
         # TLS 1.3 ciphers
         echo ""
         print_prompt "Choose TLS 1.3 cipher suites:"
-        echo "  1) All secure ciphers (recommended)"
-        echo "  2) AES-256-GCM only"
+        echo "  1) AES-256-GCM only (recommended, strongest single suite)"
+        echo "  2) All secure ciphers (widest compatibility)"
         echo "  3) AES-128-GCM only"
         echo "  4) ChaCha20-Poly1305 only"
 
         read -rp "$(print_prompt "Select [1]: ")" -e -i 1 TLS13_CHOICE
         case $TLS13_CHOICE in
-            2) TLS13_CIPHERSUITES="TLS_AES_256_GCM_SHA384" ;;
+            2) TLS13_CIPHERSUITES="TLS_AES_256_GCM_SHA384:TLS_AES_128_GCM_SHA256:TLS_CHACHA20_POLY1305_SHA256" ;;
             3) TLS13_CIPHERSUITES="TLS_AES_128_GCM_SHA256" ;;
             4) TLS13_CIPHERSUITES="TLS_CHACHA20_POLY1305_SHA256" ;;
-            *) TLS13_CIPHERSUITES="TLS_AES_256_GCM_SHA384:TLS_AES_128_GCM_SHA256:TLS_CHACHA20_POLY1305_SHA256" ;;
+            *) TLS13_CIPHERSUITES="TLS_AES_256_GCM_SHA384" ;;
         esac
 
         # TLS groups
@@ -803,11 +1029,12 @@ installQuestions() {
     else
         # Default encryption settings
         CIPHER="AES-128-GCM"
+        DATA_CIPHERS_FALLBACK="none"
         CERT_TYPE="ecdsa"
         CERT_CURVE="prime256v1"
         RSA_KEY_SIZE="2048"
         CC_CIPHER="TLS-ECDHE-ECDSA-WITH-AES-128-GCM-SHA256"
-        TLS13_CIPHERSUITES="TLS_AES_256_GCM_SHA384:TLS_AES_128_GCM_SHA256:TLS_CHACHA20_POLY1305_SHA256"
+        TLS13_CIPHERSUITES="TLS_AES_256_GCM_SHA384"
         TLS_VERSION_MIN="1.2"
         TLS_GROUPS="X25519:prime256v1:secp384r1:secp521r1"
         HMAC_ALG="SHA256"
@@ -821,7 +1048,11 @@ installQuestions() {
     print_status "DNS" "${DNS_PROVIDERS[$DNS]%%|*}"
     print_status "Auth Mode" "$AUTH_MODE"
     print_status "Cipher" "$CIPHER"
+    print_status "Fallback Cipher" "${DATA_CIPHERS_FALLBACK:-none}"
     print_status "Certificate Type" "$CERT_TYPE"
+    print_status "TLS Version Min" "$TLS_VERSION_MIN"
+    print_status "TLS 1.3 Suites" "$TLS13_CIPHERSUITES"
+    print_status "TLS Sig" "$TLS_SIG"
     echo ""
 
     read -n1 -r -p "$(print_prompt "Press any key to continue...")"
@@ -1000,6 +1231,9 @@ EOF
         echo "auth $HMAC_ALG"
         echo "cipher $CIPHER"
         echo "data-ciphers $CIPHER"
+        if [[ -n $DATA_CIPHERS_FALLBACK && $DATA_CIPHERS_FALLBACK != "none" ]]; then
+            echo "data-ciphers-fallback $DATA_CIPHERS_FALLBACK"
+        fi
         echo "tls-server"
         echo "tls-version-min $TLS_VERSION_MIN"
         [[ $AUTH_MODE == "pki" ]] && echo "remote-cert-tls client"
@@ -1026,34 +1260,52 @@ EOF
         iptables -A FORWARD -i tun+ -j ACCEPT 2>/dev/null
         iptables -A FORWARD -o tun+ -j ACCEPT 2>/dev/null
         iptables -A INPUT -i $NIC -p $PROTOCOL --dport $PORT -j ACCEPT 2>/dev/null
+        print_info "iptables rules added. Persist them with iptables-persistent or your distro's mechanism."
     fi
 
-    systemctl daemon-reload
-    systemctl enable openvpn-server@server
-    [[ $AUTH_MODE == "pki" ]] && systemctl restart openvpn-server@server
-
-    [[ $DNS == "unbound" ]] && installUnbound
+    # Client template — prefer ENDPOINT over IP if the user supplied one (NAT case)
+    local remote_host="${ENDPOINT:-$IP}"
 
     cat > /etc/openvpn/server/client-template.txt <<EOF
 client
 dev tun
 proto $PROTOCOL
-remote $IP $PORT
+remote $remote_host $PORT
 resolv-retry infinite
 nobind
 persist-key
 persist-tun
 remote-cert-tls server
 auth $HMAC_ALG
-cipher $CIPHER
 data-ciphers $CIPHER
-verb 3
 EOF
+
+    # Fallback cipher on client only if enabled
+    if [[ -n $DATA_CIPHERS_FALLBACK && $DATA_CIPHERS_FALLBACK != "none" ]]; then
+        echo "data-ciphers-fallback $DATA_CIPHERS_FALLBACK" >> /etc/openvpn/server/client-template.txt
+    fi
+
+    echo "verb 3" >> /etc/openvpn/server/client-template.txt
+
+    systemctl daemon-reload
+    systemctl enable openvpn-server@server
+
+    [[ $DNS == "unbound" ]] && installUnbound
 
     if [[ $NEW_CLIENT != "n" ]]; then
         print_info "Generating first client..."
         newClient
-        [[ $AUTH_MODE == "fingerprint" ]] && systemctl restart openvpn-server@server
+    fi
+
+    # Always (re)start the service now that configs and keys exist.
+    systemctl restart openvpn-server@server
+
+    # Post-install health check
+    sleep 2
+    if systemctl is-active --quiet openvpn-server@server; then
+        print_success "OpenVPN service is running"
+    else
+        print_error "OpenVPN service failed to start — check: journalctl -u openvpn-server@server"
     fi
 
     print_success "OpenVPN installation complete!"
@@ -1149,12 +1401,33 @@ newClient() {
 }
 
 listClients() {
-    print_header "Client List"
-
     if [[ ! -d /etc/openvpn/server/easy-rsa/pki ]]; then
-        print_warning "No OpenVPN installation found"
+        if [[ "$OUTPUT_FORMAT" == "json" ]]; then
+            echo '{"clients":[]}'
+        else
+            print_warning "No OpenVPN installation found"
+        fi
         return
     fi
+
+    if [[ "$OUTPUT_FORMAT" == "json" ]]; then
+        local first=1
+        printf '{"clients":['
+        while read -r line; do
+            if [[ $line =~ ^V.*CN=([^/]+) ]]; then
+                client="${BASH_REMATCH[1]}"
+                if [[ $client != server_* ]]; then
+                    [[ $first -eq 0 ]] && printf ','
+                    printf '"%s"' "$client"
+                    first=0
+                fi
+            fi
+        done < /etc/openvpn/server/easy-rsa/pki/index.txt 2>/dev/null
+        printf ']}\n'
+        return
+    fi
+
+    print_header "Client List"
 
     local count=0
     echo ""
@@ -1241,6 +1514,18 @@ renewServer() {
     log_fatal "Not implemented yet"
 }
 
+restartServer() {
+    print_header "Restart OpenVPN Server"
+    requireOpenVPN
+    systemctl restart openvpn-server@server
+    sleep 2
+    if systemctl is-active --quiet openvpn-server@server; then
+        print_success "OpenVPN service restarted"
+    else
+        print_error "OpenVPN service failed to restart — check: journalctl -u openvpn-server@server"
+    fi
+}
+
 # =============================================================================
 # Uninstall Functions
 # =============================================================================
@@ -1273,7 +1558,7 @@ removeOpenVPN() {
     if [[ -f /etc/openvpn/server/easy-rsa/pki/index.txt ]]; then
         print_info "Revoking all client certificates..."
         cd /etc/openvpn/server/easy-rsa || exit
-        
+
         while read -r line; do
             if [[ $line =~ ^V.*CN=([^/]+) ]]; then
                 client="${BASH_REMATCH[1]}"
@@ -1284,7 +1569,7 @@ removeOpenVPN() {
                 fi
             fi
         done < /etc/openvpn/server/easy-rsa/pki/index.txt
-        
+
         ./easyrsa gen-crl 2>/dev/null
     fi
 
@@ -1333,19 +1618,21 @@ manageMenu() {
         print_menu_option "2" "List clients"
         print_menu_option "3" "Revoke client"
         print_menu_option "4" "List connected clients"
-        print_menu_option "5" "Remove OpenVPN"
-        print_menu_option "6" "Exit"
+        print_menu_option "5" "Restart OpenVPN server"
+        print_menu_option "6" "Remove OpenVPN"
+        print_menu_option "7" "Exit"
         echo ""
 
-        read -rp "$(print_prompt "Select [1-6]: ")" choice
+        read -rp "$(print_prompt "Select [1-7]: ")" choice
 
         case $choice in
             1) newClient ;;
             2) listClients ;;
             3) revokeClient ;;
             4) listConnectedClients ;;
-            5) removeOpenVPN ;;
-            6) exit 0 ;;
+            5) restartServer ;;
+            6) removeOpenVPN ;;
+            7) exit 0 ;;
             *) print_warning "Invalid option" ;;
         esac
     done
@@ -1363,6 +1650,7 @@ parse_dns_provider() {
 show_help() {
     cat <<EOF
 ${C_BOLD}${C_CYAN}OpenVPN Server Installer & Manager${C_RESET}
+${C_DIM}Wael Isa - https://github.com/waelisa/OpenVPN-Install${C_RESET}
 
 ${C_BOLD}${C_YELLOW}Usage:${C_RESET} $SCRIPT_NAME <command> [options]
 
@@ -1390,12 +1678,47 @@ ${C_BOLD}${C_CYAN}Install OpenVPN${C_RESET}
 
 Usage: $SCRIPT_NAME install [options]
 
-Options:
-    -i, --interactive     Run interactive install wizard
-    --dns <provider>      DNS provider
-    --dns-list            List available DNS providers
-    --port <num>          OpenVPN port
-    --no-client           Skip initial client creation
+General options:
+    -i, --interactive         Run interactive install wizard
+    --no-client               Skip initial client creation
+    --endpoint <host>         Public IP or hostname for client configs
+    --port <num>              OpenVPN port (default: 1194)
+    --protocol <udp|tcp>      Transport protocol (default: udp)
+    --mtu <num>               Tunnel MTU (default: 1500)
+    --multi-client            Allow multiple devices per client
+    --client-ipv4 <y|n>       Enable IPv4 for clients (default: y)
+    --client-ipv6 <y|n>       Enable IPv6 for clients (default: n)
+
+DNS options:
+    --dns <provider>          DNS provider (see --dns-list)
+    --dns-list                List available DNS providers
+
+Encryption options:
+    --cipher <name>           Data channel cipher (default: AES-128-GCM)
+    --fallback-cipher <name>  Legacy fallback cipher (default: none)
+                              Valid: none, AES-128-CBC, AES-192-CBC, AES-256-CBC
+    --tls-version <1.2|1.3>   Minimum TLS version (default: 1.2)
+    --cert-type <ecdsa|rsa>   Certificate key type (default: ecdsa)
+    --curve <name>            ECDSA curve (default: prime256v1)
+                              Valid: prime256v1, secp384r1, secp521r1
+    --rsa-size <bits>         RSA key size (default: 2048)
+                              Valid: 2048, 3072, 4096
+    --auth-mode <mode>        Authentication mode (default: pki)
+                              Valid: pki, fingerprint
+    --tls-sig <mode>          Control channel security (default: crypt-v2)
+                              Valid: crypt-v2, crypt, auth
+    --hmac <algo>             HMAC digest (default: SHA256)
+                              Valid: SHA256, SHA384, SHA512
+    --tls-groups <list>       TLS key exchange groups
+                              Default: X25519:prime256v1:secp384r1:secp521r1
+
+    --encryption-list         Show all supported encryption options
+
+Examples:
+    $SCRIPT_NAME install --interactive
+    $SCRIPT_NAME install --dns cloudflare --cipher AES-256-GCM
+    $SCRIPT_NAME install --fallback-cipher AES-256-CBC --tls-version 1.3
+    $SCRIPT_NAME install --cert-type rsa --rsa-size 4096 --auth-mode pki
 EOF
 }
 
@@ -1453,7 +1776,9 @@ ${C_BOLD}${C_CYAN}Server Management${C_RESET}
 Usage: $SCRIPT_NAME server <subcommand>
 
 Subcommands:
-    status   List connected clients
+    status     List connected clients
+    restart    Restart the OpenVPN service
+    renew      Renew the server certificate (not implemented)
 EOF
 }
 
@@ -1482,20 +1807,40 @@ cmd_install() {
     local interactive=false
     local no_client=false
     local list_dns=false
+    local list_enc=false
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
             -i|--interactive) interactive=true ;;
             --no-client) no_client=true ;;
             --dns-list) list_dns=true ;;
+            --encryption-list) list_enc=true ;;
             --dns) shift; parse_dns_provider "$1" ;;
             --port) shift; PORT="$1" ;;
+            --protocol) shift; PROTOCOL="$1" ;;
+            --mtu) shift; MTU="$1" ;;
+            --multi-client) MULTI_CLIENT="y" ;;
+            --endpoint) shift; ENDPOINT="$1" ;;
+            --client-ipv4) shift; CLIENT_IPV4="$1" ;;
+            --client-ipv6) shift; CLIENT_IPV6="$1" ;;
+            --cipher) shift; CIPHER="$1" ;;
+            --fallback-cipher) shift; DATA_CIPHERS_FALLBACK="$1" ;;
+            --tls-version) shift; TLS_VERSION_MIN="$1" ;;
+            --cert-type) shift; CERT_TYPE="$1" ;;
+            --curve) shift; CERT_CURVE="$1" ;;
+            --rsa-size) shift; RSA_KEY_SIZE="$1" ;;
+            --auth-mode) shift; AUTH_MODE="$1" ;;
+            --tls-sig) shift; TLS_SIG="$1" ;;
+            --hmac) shift; HMAC_ALG="$1" ;;
+            --tls-groups) shift; TLS_GROUPS="$1" ;;
             -h|--help) show_install_help; exit 0 ;;
+            *) log_fatal "Unknown install option: $1" ;;
         esac
         shift
     done
 
     [[ $list_dns == true ]] && { list_dns_providers; exit 0; }
+    [[ $list_enc == true ]] && { list_encryption_options; exit 0; }
 
     requireNoOpenVPN
 
@@ -1606,6 +1951,7 @@ cmd_server() {
 
     case "$subcmd" in
         status) listConnectedClients ;;
+        restart) restartServer ;;
         renew) renewServer ;;
         ""|-h|--help) show_server_help ;;
         *) log_fatal "Unknown server subcommand: $subcmd" ;;
@@ -1622,7 +1968,7 @@ cmd_interactive() {
 }
 
 # =============================================================================
-# Main Entry Point - IMPROVED: Runs interactive mode when no command given
+# Main Entry Point - Runs interactive mode when no command given
 # =============================================================================
 
 SCRIPT_NAME="$(basename "$0")"
