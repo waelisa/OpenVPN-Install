@@ -272,7 +272,7 @@ When you select "y" during encryption customization, you get full control over:
 
 ## **📝 Changelog**
 
-### **Version 2.0 (Current)**
+### **Version 1.0.1 (Current)**
 
 *   ✅ Fixed client revocation - now removes .ovpn files
 *   ✅ Enhanced uninstall - revokes all clients and cleans up
