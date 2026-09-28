@@ -8,8 +8,6 @@ A high-performance, security-hardened OpenVPN server installer for Linux. This v
 
 ## **📥 Quick Download & Install**
 
-bash
-
 # Download 
 
 wget https://github.com/waelisa/OpenVPN-Install/raw/refs/heads/main/openvpn-install.sh -O openvpn-install.sh
