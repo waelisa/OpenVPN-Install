@@ -2,15 +2,21 @@
 
 A high-performance, security-hardened OpenVPN server installer for Linux. This version is a significant fork of the original Angristan script, featuring an expanded DNS library, modern OpenVPN 2.6+ features, and enhanced cleanup logic.
 
-[https://img.shields.io/badge/License-MIT-yellow.svg](https://img.shields.io/badge/License-MIT-yellow.svg)  
-[https://img.shields.io/badge/platform-linux-blue.svg](https://img.shields.io/badge/platform-linux-blue.svg)  
-[https://img.shields.io/badge/OpenVPN-2.4+-orange.svg](https://img.shields.io/badge/OpenVPN-2.4+-orange.svg)
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
+[![https://img.shields.io/badge/OpenVPN-2.4+-orange.svg)](https://img.shields.io/badge/OpenVPN-2.4+-orange.svg)
+[![Transmission](https://img.shields.io/badge/Transmission-4-orange.svg)](https://transmissionbt.com/) 
 
 ## **📥 Quick Download & Install**
 
 bash
 
-# Download the scriptwget https://github.com/waelisa/OpenVPN-Install/raw/refs/heads/main/openvpn-install.sh -O openvpn-install.sh# Make it executablechmod +x openvpn-install.sh# Run the interactive installer (recommended)sudo ./openvpn-install.sh
+# Download 
+
+wget https://github.com/waelisa/OpenVPN-Install/raw/refs/heads/main/openvpn-install.sh -O openvpn-install.sh
+
+chmod +x openvpn-install.sh
+
+sudo ./openvpn-install.sh
 
 ## **🌟 Key Enhancements in this Version**
 
@@ -293,11 +299,9 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## **📜 License**
 
-This project is licensed under the MIT License - see the [LICENSE](https://license/) file for details.
+This project is licensed under the MIT License file for details.
 
 ## **🙏 Acknowledgements**
-
-Based on the excellent [angristan/openvpn-install](https://github.com/angristan/openvpn-install) script. Enhanced with additional DNS providers, modern OpenVPN features, and improved cleanup logic.
 
 ## **📞 Support**
 
