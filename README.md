@@ -3,7 +3,7 @@
 A high-performance, security-hardened OpenVPN server installer for Linux. This version is a significant fork of the original Angristan script, featuring an expanded DNS library, modern OpenVPN 2.6+ features, and enhanced cleanup logic.
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
-[![OpenVPN](https://img.shields.io/badge/OpenVPN-2.4+-orange.svg)](https://img.shields.io/badge/OpenVPN-2.4+-orange.svg)
+[![OpenVPN](https://img.shields.io/badge/OpenVPN-2.6+-orange.svg)](https://img.shields.io/badge/OpenVPN-2.6+-orange.svg)
 [![Shell Script](https://img.shields.io/badge/Shell-Bash-blue.svg)](https://www.gnu.org/software/bash/)
 
 ## **📥 Quick Download & Install**
@@ -76,8 +76,6 @@ Leap 16+ / Tumbleweed
 
 ### **Installation Modes**
 
-bash
-
 wget -O openvpn-install.sh https://github.com/waelisa/OpenVPN-Install/raw/refs/heads/main/openvpn-install.sh && chmod +x openvpn-install.sh && sudo ./openvpn-install.sh
 
 # Interactive installation (asks all questions)
@@ -93,8 +91,6 @@ sudo ./openvpn-install.sh install --port 443 --protocol tcp --dns quad9
 sudo ./openvpn-install.sh install --dns-list
 
 ### **Client Management**
-
-bash
 
 # Add a new client
 
@@ -117,8 +113,6 @@ sudo ./openvpn-install.sh client revoke john
 sudo ./openvpn-install.sh client list --format json
 
 ### **Server Management**
-
-bash
 
 # Check connected clients
 
@@ -272,7 +266,7 @@ When you select "y" during encryption customization, you get full control over:
 
 ## **📝 Changelog**
 
-### **Version 1.0.1 (Current)**
+### **Version 1.0.2 (Current)**
 
 *   ✅ Fixed client revocation - now removes .ovpn files
 *   ✅ Enhanced uninstall - revokes all clients and cleans up
